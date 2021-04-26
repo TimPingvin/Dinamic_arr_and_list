@@ -1,0 +1,702 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <chrono>
+
+int arr_size = 0;
+
+struct list {
+    list* head;
+    int data;
+    list* tail;
+};
+
+int print_list(list* begin) {
+    list* curr = begin;
+    if (!begin) {
+        std::cout << "List is empty" << '\n';
+    }
+    else {
+        while (curr) {
+            std::cout << curr->data << " ";
+            curr = curr->tail;
+        }
+        std::cout << '\n';
+    }
+    return 1;
+}
+
+int print_array(int* array) {
+    if (!array || arr_size == 0) {
+        std::cout << "Array is empty" << '\n';
+    }
+    else {
+        for (int i = 0; i != arr_size; i++) {
+            std::cout << array[i] << " ";
+        }
+        std::cout << '\n';
+    }
+    return 1;
+}
+
+int* create_rand_array() {//массив рандомов
+	int* arr = new int[arr_size];
+	for (int i = 0; i != arr_size; i++) {
+		arr[i] = rand() % 100;
+	}
+	return arr;
+}
+
+int* input_array() {//ввод чисел в массив
+    int* arr = new int[0];
+    int* temp;
+    int n = 0, num;
+    std::cout << "Введите элементы списка через пробел (закончите ввод любой буквой):" << '\n';
+    std::cin >> num;
+    while (!std::cin.fail()) {
+        temp = new int[n + 1];
+        for (int i = 0; i != n; i++) {
+            temp[i] = arr[i];
+        }
+        temp[n] = num;
+        delete[] arr;
+        arr = temp;
+        n++;
+        std::cin >> num;
+    }
+    std::cin.clear();
+    std::cin.ignore(32767, '\n');
+    arr_size = n;
+    return arr;
+}
+
+int* read_array() {//чтение из файла в массив
+    std::string path;
+    std::cout << "Путь до файла:" << '\n';
+    getline(std::cin, path);
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cout << "Ошибка чтения" << '\n';
+        return 0;
+    }
+    int* arr = new int[0];
+    int* temp;
+    int n = 0, num;
+    while (!file.eof()) {
+        temp = new int[n + 1];
+        for (int i = 0; i != n; i++) {
+            temp[i] = arr[i];
+        }
+        file >> temp[n];
+        delete[] arr;
+        arr = temp;
+        n++;
+    }
+    arr_size = n;
+    file.close();
+    return arr;
+}
+
+int* add(int* array, int item) {//добавление в массив
+    int* temp = new int[arr_size + 1];
+    for (int i = 0; i != arr_size; i++) {
+        temp[i] = array[i];
+    }
+    temp[arr_size] = item;
+    delete[] array;
+    array = temp;
+    arr_size++;
+    return array;
+}
+
+int* remove(int* array, unsigned int posicion) {//удаление элемента по позиции
+    if (!array || arr_size == 0) {
+        std::cout << "Array is empty" << '\n';
+        return array;
+    }
+    if (posicion > arr_size || posicion == 0) {
+        std::cout << "Out of range" << '\n';
+        return array;
+    }
+    int n = arr_size;
+    int* temp = new int[n - 1];
+    for (int i = 0; i != posicion - 1; i++) {
+        temp[i] = array[i];
+    }
+    for (int i = posicion - 1; i != n - 1; i++) {
+        temp[i] = array[i + 1];
+    }
+    delete[] array;
+    std::cout << "Элемент удалён" << '\n';
+    arr_size--;
+    array = temp;
+    return array;
+}
+
+int* remove_items(int* array, int item) {//удаление эелемента по значению
+    if (!array) {
+        std::cout << "Array is empty" << '\n';
+        return array;
+    }
+    for (int i = 0; i != arr_size; i++) {
+        if (array[i] == item) {
+            array = remove(array, i + 1);
+        }
+    }
+    return array;
+}
+
+int take(int* array, unsigned int posicion) {//возврат значения по позиции
+    if (posicion > arr_size || posicion == 0) {
+        std::cout << "Out of range" << '\n';
+        return 0;
+    }
+    std::cout << array[posicion - 1] << '\n';
+    return array[posicion - 1];
+}
+
+int where_item(int* array, int item) {//возвращениее позиции по значению
+    for (int i = 0; i != arr_size; i++) {
+        if (array[i] == item) {
+            std::cout << i + 1 << " ";
+        }
+    }
+    std::cout << '\n';
+    return 0;
+}
+
+list* create_rand_list(unsigned int length) {//список из рандомов
+    if (length == 0) {
+        return 0;
+    }
+    list* curr = 0;
+    list* temp = 0;
+    list* begin = 0;
+    temp = new list;
+    temp->head = 0;
+    temp->tail = 0;
+    temp->data = rand() % 100;
+    curr = temp;
+    begin = temp;
+    for (int i = 1; i != length; i++) {
+        temp = new list;
+        temp->head = curr;
+        temp->tail = 0;
+        temp->data = rand() % 100;
+        curr->tail = temp;
+        curr = temp;
+    }
+    return begin;
+}
+
+list* input_list() {//ввод списка
+    list* curr = 0;
+    list* temp = 0;
+    list* begin = 0;
+    int num;
+    std::cout << "Введите эелементы списка через пробел (закончите любой буквой):" << '\n';
+    std::cin >> num;
+    if (!std::cin.fail()) {
+        temp = new list;
+        temp->head = curr;
+        temp->tail = 0;
+        temp->data = num;
+        curr = temp;
+        begin = temp;
+        std::cin >> num;
+    }
+    while (!std::cin.fail()) {
+        temp = new list;
+        temp->head = curr;
+        temp->tail = 0;
+        temp->data = num;
+        curr->tail = temp;
+        curr = temp;
+        std::cin >> num;
+    }
+    std::cin.clear();
+    std::cin.ignore(32767, '\n');
+    return begin;
+}
+
+list* read_list() {//чтение из файла в список
+    list* curr = 0;
+    list* temp = 0;
+    list* begin = 0;
+    std::string path;
+    std::cout << "Введите путь до файла:" << '\n';
+    getline(std::cin, path);
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cout << "Ошибка чтения" << '\n';
+        return 0;
+    }
+    if (!file.eof()) {
+        temp = new list;
+        temp->head = curr;
+        temp->tail = 0;
+        file >> temp->data;
+        curr = temp;
+        begin = temp;
+    }
+    while (!file.eof()) {
+        temp = new list;
+        temp->head = curr;
+        temp->tail = 0;
+        file >> temp->data;
+        curr->tail = temp;
+        curr = temp;
+    }
+    return begin;
+}
+
+list* add(list* begin, int item) {//добавление к списку
+    list* temp = begin;
+    if (temp == 0) {
+        temp = new list;
+        temp->head = 0;
+        temp->tail = 0;
+        temp->data = item;
+        begin = temp;
+        return begin;
+    }
+    else {
+        while (temp->tail) {
+            temp = temp->tail;
+        }
+        temp->tail = new list;
+        temp->tail->head = temp;
+        temp->tail->tail = 0;
+        temp->tail->data = item;
+        return begin;
+    }
+}
+
+list* remove(list* begin, unsigned int posicion) {//удаление по позиции
+    if (!begin) {
+        std::cout << "List is empty" << '\n';
+        return begin;
+    }
+    if (posicion == 0) {
+        return begin;
+    }
+    list* curr = begin;
+    list* temp;
+    int size = 0;
+    while (curr) {
+        curr = curr->tail;
+        size++;
+    }
+    if (posicion > size) {
+        std::cout << "Invalid posicion" << '\n';
+        return begin;
+    }
+    else if (size == 0) {
+        std::cout << "List is empty" << '\n';
+        return 0;
+    }
+    curr = begin;
+    for (int i = 1; i != posicion; i++) {
+        curr = curr->tail;
+    }
+    if (!curr->head && !curr->tail) {
+        begin = 0;
+        delete curr;
+        std::cout << "Элемент удалён" << '\n';
+    }
+    else if(!curr->head) {
+        temp = curr;
+        curr = curr->tail;
+        curr->head = 0;
+        begin = curr;
+        delete temp;
+        std::cout << "Элемент удалён" << '\n';
+    }
+    else if (!curr->tail) {
+        temp = curr;
+        curr = curr->head;
+        curr->tail = 0;
+        delete temp;
+        std::cout << "Элемент удалён" << '\n';
+    }
+    else {
+        temp = curr;
+        curr = curr->head;
+        curr->tail = temp->tail;
+        temp->tail->head = curr;
+        delete temp;
+        std::cout << "Элемент удалён" << '\n';
+    }
+    return begin;
+}
+
+list* remove_items(list* begin, int item) {//удаление по значению
+    list* curr = begin;
+    list* temp;
+    while (curr->data == item) {
+        temp = curr;
+        curr = curr->tail;
+        remove(temp, 1);
+        begin = curr;
+    }
+    while (curr) {
+        if (curr->data == item) {
+            temp = curr;
+            curr = curr->tail;
+            remove(temp, 1);
+        }
+        else {
+            curr = curr->tail;
+        }
+    }
+    return begin;
+}
+
+int take(list* begin, unsigned int posicion) {//возвращение значения по позиции
+    list* curr = begin;
+    int size = 0;
+    while (curr) {
+        curr = curr->tail;
+        size++;
+    }
+    if (posicion > size || posicion == 0) {
+        std::cout << "Invalid posicion" << '\n';
+        return 0;
+    }
+    curr = begin;
+    for (int i = 1; i != posicion; i++) {
+        curr = curr->tail;
+    }
+    return curr->data;
+}
+
+list* where_item(list* begin, int item) {//возвращение позиции по значению
+    list* curr = begin;
+    int i = 0;
+    while (curr) {
+        i++;
+        if (curr->data == item) {
+            std::cout << i << " ";
+        }
+        curr = curr->tail;
+    }
+    std::cout << '\n';
+    return begin;
+}
+
+// Доп задание на удаление нечётных элементов ===============
+
+int* remove_odd_items(int* arr) {
+    for (int i = 0; i != arr_size; i++) {
+        if (arr[i] % 2 != 0) {
+            arr = remove(arr, i + 1);
+            i--;
+        }
+    }
+    return arr;
+}
+
+list* remove_odd_items(list* spisok) {
+    list* curr = spisok;
+    list* temp;
+    while (curr->data % 2 != 0) {
+        temp = curr;
+        curr = curr->tail;
+        remove(temp, 1);
+        spisok = curr;
+    }
+    while (curr) {
+        if (curr->data % 2 != 0) {
+            temp = curr;
+            curr = curr->tail;
+            remove(temp, 1);
+        }
+        else {
+            curr = curr->tail;
+        }
+    }
+    return spisok;
+}
+
+//===============================================================
+
+int main() {
+    setlocale(0,"");
+    std::chrono::system_clock::time_point start;
+    std::chrono::system_clock::time_point end;
+    std::chrono::duration <double> time;
+    int choise = 1;
+    list* spisok = 0,* temp_l;
+    int* arr = 0;
+    unsigned int size = 0;
+    int num = 0;
+    while (choise != 0) {
+        std::cout << '\n' << "Выберите пункт:" << '\n';
+        std::cout << "1) Сосздать массив" << '\n';
+        std::cout << "2) Добавить элемент в массив" << '\n';
+        std::cout << "3) Удалить элемент из массива" << '\n';
+        std::cout << "4) Поиск элемента массива" << '\n' << '\n';
+        std::cout << "5) Создать двусвязный список" << '\n';
+        std::cout << "6) Добавить элемент в список" << '\n';
+        std::cout << "7) Удалить элемент списка" << '\n';
+        std::cout << "8) Поиск эелемента списка" << '\n' << '\n';
+        std::cout << "9) Вывод массива и списка" << '\n' << '\n';
+        std::cout << "10) Удалить нечётные числа (доп задание)" << '\n';
+        std::cout << "0) Выход" << '\n';
+        std::cin >> choise;
+        switch (choise) {
+        case 1://Создание масиива
+            choise = 0;
+            if (arr) {
+                delete[] arr;
+                arr = 0;
+            }
+            while (!choise) {
+                std::cout << "Выберите способ: " << '\n';
+                std::cout << "1) Массив N чисел от 0 до 100" << '\n';
+                std::cout << "2) Ввести элементы массива" << '\n';
+                std::cout << "3) Прочесть из файла" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Размер массива: ";
+                    std::cin >> arr_size;
+                    start = std::chrono::system_clock::now();
+                    arr = create_rand_array();
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание массива: " << time.count() << '\n';
+                    break;
+                case 2:
+                    start = std::chrono::system_clock::now();
+                    arr = input_array();
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание массива: " << time.count() << '\n';
+                    break;
+                case 3:
+                    start = std::chrono::system_clock::now();
+                    arr = read_array();
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание массива: " << time.count() << '\n';
+                    break;
+                default:
+                    choise = 0;
+                    std::cout << "Try again" << '\n';
+                    break;
+                }
+            }
+            break;
+        case 2://Добавление в массив
+            std::cout << "Добавляемое число: ";
+            std::cin >> num;
+            start = std::chrono::system_clock::now();
+            arr = add(arr, num);
+            end = std::chrono::system_clock::now();
+            time = end - start;
+            std::cout << "Времени на добавление: " << time.count() << '\n';
+            break;
+        case 3://Удаление из массива
+            choise = 0;
+            while (!choise) {
+                std::cout << "1) по значению" << '\n';
+                std::cout << "2) по позиции" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Удаляемое число: ";
+                    std::cin >> num;
+                    start = std::chrono::system_clock::now();
+                    arr = remove_items(arr, num);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на удаление: " << time.count() << '\n';
+                    break;
+                case 2:
+                    std::cout << "Удаляемая позиция: ";
+                    std::cin >> size;
+                    start = std::chrono::system_clock::now();
+                    arr = remove(arr, size);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на удаление: " << time.count() << '\n';
+                    break;
+                default:
+                    choise = 0;
+                    std::cout << "Try again" << '\n';
+                    break;
+                }
+            }
+            break;
+        case 4://возврат из массива
+            choise = 0;
+            while (!choise) {
+                std::cout << "1) по значению" << '\n';
+                std::cout << "2) по позиции" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Искомое число: ";
+                    std::cin >> num;
+                    start = std::chrono::system_clock::now();
+                    where_item(arr, num);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на поиск: " << time.count() << '\n';
+                    break;
+                case 2:
+                    std::cout << "Искомая позиция: ";
+                    std::cin >> size;
+                    start = std::chrono::system_clock::now();
+                    take(arr, size);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на поиск: " << time.count() << '\n';
+                    break;
+                default:
+                    choise = 0;
+                    std::cout << "try again" << '\n';
+                    break;
+                }
+            }
+            break;
+        case 5://создание списка
+            choise = 0;
+            if (spisok) {
+                while (spisok) {
+                    temp_l = spisok;
+                    spisok = spisok->tail;
+                    delete temp_l;
+                }
+            }
+            while (!choise) {
+                std::cout << "Выберите способ:" << '\n';
+                std::cout << "1) N рандомных чисел" << '\n';
+                std::cout << "2) Ввести числа" << '\n';
+                std::cout << "3) Прочитать из файла" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Размер списка: ";
+                    std::cin >> size;
+                    start = std::chrono::system_clock::now();
+                    spisok = create_rand_list(size);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание списка: " << time.count() << '\n';
+                    break;
+                case 2:
+                    start = std::chrono::system_clock::now();
+                    spisok = input_list();
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание списка: " << time.count() << '\n';
+                    break;
+                case 3:
+                    start = std::chrono::system_clock::now();
+                    spisok = read_list();
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на создание списка: " << time.count() << '\n';
+                    break;
+                default:
+                    std::cout << "Try again" << '\n';
+                    choise = 0;
+                    break;
+                }
+            }
+            break;
+        case 6://добавление в список
+            std::cout << "Добавляемое число: ";
+            std::cin >> num;
+            start = std::chrono::system_clock::now();
+            spisok = add(spisok, num);
+            end = std::chrono::system_clock::now();
+            time = end - start;
+            std::cout << "Времени на добавление: " << time.count() << '\n';
+            break;
+        case 7://удаление из списка
+            choise = 0;
+            while (!choise) {
+                std::cout << "1) По значению" << '\n';
+                std::cout << "2) По позиции" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Удаляемое число: ";
+                    std::cin >> num;
+                    start = std::chrono::system_clock::now();
+                    spisok = remove_items(spisok, num);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на удаление: " << time.count() << '\n';
+                    break;
+                case 2:
+                    std::cout << "Удаляемая позиция: ";
+                    std::cin >> size;
+                    start = std::chrono::system_clock::now();
+                    spisok = remove(spisok, size);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на удаление: " << time.count() << '\n';
+                    break;
+                default:
+                    choise = 0;
+                    std::cout << "try again" << '\n';
+                    break;
+                }
+            }
+            break;
+        case 8://возврат из списка
+            choise = 0;
+            while (!choise) {
+                std::cout << "1) По значению" << '\n';
+                std::cout << "2) По позиции" << '\n';
+                std::cin >> choise;
+                switch (choise) {
+                case 1:
+                    std::cout << "Искомое число: ";
+                    std::cin >> num;
+                    start = std::chrono::system_clock::now();
+                    where_item(spisok, num);
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на поиск: " << time.count() << '\n';
+                    break;
+                case 2:
+                    std::cout << "Искомая позиция: ";
+                    std::cin >> size;
+                    start = std::chrono::system_clock::now();
+                    std::cout << take(spisok, size) << '\n';
+                    end = std::chrono::system_clock::now();
+                    time = end - start;
+                    std::cout << "Времени на поиск: " << time.count() << '\n';
+                    break;
+                default:
+                    choise = 0;
+                    std::cout << "try again" << '\n';
+                    break;
+                }
+            }
+            break;
+        case 9://вывод списка и массива
+            std::cout << "Массив: ";
+            print_array(arr);
+            std::cout << "Список: ";
+            print_list(spisok);
+            break;
+        case 10://удалкние нечётных чисел
+            arr = remove_odd_items(arr);
+            spisok = remove_odd_items(spisok);
+            break;
+        case 0:
+            return 0;
+            break;
+        default:
+            std::cout << "Try again";
+            break;
+        }
+    }
+    return 0;
+}
